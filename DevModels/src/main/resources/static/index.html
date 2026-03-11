@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Form</title>
+</head>
+<body>
+
+<h2>Add User</h2>
+
+<input type="text" id="username" placeholder="Username"><br>
+<input type="email" id="email" placeholder="Email"><br>
+<input type="number" id="age" placeholder="Age"><br>
+<button onclick="addUser()">Submit</button>
+
+<p id="response"></p>
+
+<button onclick="getUsers()">Get Users</button>
+
+<h2>User List</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Age</th>
+        </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+</table>
+
+<script>
+function addUser() {
+    const user = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        age: document.getElementById("age").value
+    };
+
+    fetch("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user)
+    })
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("response").innerText = data;
+        getUsers(); // auto refresh list
+    })
+    .catch(() => {
+        document.getElementById("response").innerText = "Error adding user";
+    });
+}
+
+function getUsers() {
+    fetch("/users")
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById("userTableBody");
+            tableBody.innerHTML = "";
+
+            data.forEach(user => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.age}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        });
+}
+</script>
+
+</body>
+</html>
